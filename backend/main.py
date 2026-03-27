@@ -115,7 +115,7 @@ async def create_note(request: NoteRequest) -> NoteResponse:
     except json.JSONDecodeError:
         raise HTTPException(
             status_code=502,
-            detail="O Claude retornou JSON malformado. Tente novamente.",
+            detail="O LLM retornou JSON malformado. Tente novamente.",
         )
     except groq_sdk.APIError as exc:
         raise HTTPException(
