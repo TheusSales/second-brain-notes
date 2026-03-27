@@ -33,6 +33,7 @@ import html2text
 from pydantic import BaseModel, model_validator
 
 from backend.config import settings
+from backend.vault_reader import format_vault_context
 
 
 # ---------------------------------------------------------------------------
@@ -81,6 +82,7 @@ class GeneratedNote(BaseModel):
         resumo: Resumo de 2-4 frases capturando a ideia central.
         flashcards: Lista de flashcards para revisão espaçada.
         tags: Lista de 3-6 tags em minúsculas.
+        connections: Lista de títulos de notas existentes relacionadas (para [[wikilinks]]).
         fonte: URL da fonte ou 'manual' para texto livre.
         date: Data da criação no formato ISO (YYYY-MM-DD).
         body: Corpo completo da nota em Markdown.
@@ -90,6 +92,7 @@ class GeneratedNote(BaseModel):
     resumo: str
     flashcards: list[Flashcard]
     tags: list[str]
+    connections: list[str] = []
     fonte: str
     date: str
     body: str
@@ -112,7 +115,7 @@ CONTEÚDO:
 ---
 {content}
 ---
-
+{vault_context}
 Retorne um JSON com EXATAMENTE estes campos:
 {{
   "titulo": "título conciso no idioma do conteúdo",
@@ -122,14 +125,16 @@ Retorne um JSON com EXATAMENTE estes campos:
     ... (entre 3 e 7 flashcards)
   ],
   "tags": ["tag1", "tag2", "tag3"],
-  "body": "Nota completa em Markdown com títulos, listas e exemplos. Mínimo 150 palavras."
+  "connections": ["Título da nota existente relacionada", ...],
+  "body": "Nota completa em Markdown com títulos, listas e exemplos. Mínimo 150 palavras. Inclua uma seção '## Conexões' no final com [[wikilinks]] para as notas relacionadas."
 }}
 
 Regras:
 - titulo, resumo, tags e body devem estar no idioma do conteúdo
 - Perguntas dos flashcards devem testar compreensão, não apenas memorização
 - Tags em minúsculas, sem hashtag, conceitos gerais (3 a 6 tags)
-- body deve incluir conceitos-chave, exemplos e conexões com outras ideias"""
+- connections: lista com títulos EXATOS de notas existentes que se relacionam com este conteúdo (somente notas da lista acima, pode ser vazia se nenhuma for relevante)
+- body deve incluir conceitos-chave, exemplos e uma seção "## Conexões" no final com links [[Título da Nota]] para cada conexão sugerida"""
 
 
 # ---------------------------------------------------------------------------
@@ -210,6 +215,7 @@ def parse_llm_response(raw: str, fonte: str, date: str) -> GeneratedNote:
         resumo=data["resumo"],
         flashcards=[Flashcard(**fc) for fc in data.get("flashcards", [])],
         tags=data["tags"],
+        connections=data.get("connections", []),
         fonte=fonte,
         date=date,
         body=data["body"],
@@ -246,6 +252,13 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
 
     today = datetime.date.today().isoformat()
 
+    # Busca contexto das notas existentes no vault para sugestão de conexões
+    vault_context = format_vault_context()
+    if vault_context:
+        vault_context = f"\n{vault_context}\n"
+    else:
+        vault_context = ""
+
     def _call_groq() -> str:
         """Executa a chamada síncrona ao Groq em thread pool."""
         client = groq_sdk.Groq(api_key=settings.groq_api_key)
@@ -259,6 +272,7 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
                     "content": USER_PROMPT_TEMPLATE.format(
                         source_type=source_type,
                         content=content,
+                        vault_context=vault_context,
                     ),
                 },
             ],

@@ -31,8 +31,9 @@ class TestSettings:
     def test_default_obsidian_vault_path(self, monkeypatch):
         """obsidian_vault_path deve ter valor padrão correto."""
         monkeypatch.setenv("GROQ_API_KEY", "gsk-test-key")
+        monkeypatch.delenv("OBSIDIAN_VAULT_PATH", raising=False)
         from backend.config import Settings
-        settings = Settings()
+        settings = Settings(_env_file="")
         expected = Path.home() / "Documents/Obsidian/Vault/Inbox"
         assert settings.obsidian_vault_path == expected
 

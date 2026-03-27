@@ -79,6 +79,12 @@ def render_note(note: GeneratedNote) -> str:
     else:
         frontmatter_lines.append("flashcards: []")
 
+    if note.connections:
+        connections_yaml = "\n".join(f"  - \"[[{escape(c)}]]\"" for c in note.connections)
+        frontmatter_lines.extend(["connections:", connections_yaml])
+    else:
+        frontmatter_lines.append("connections: []")
+
     frontmatter_lines.extend([
         f'fonte: "{escape(note.fonte)}"',
         f"date: {note.date}",

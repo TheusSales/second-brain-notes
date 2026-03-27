@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Second Brain Notes</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Second Brain Notes</h1>
+      <p class="subtitle">Transforme qualquer conteúdo em uma nota de aprendizado estruturada.</p>
+    </header>
+
+    <!-- FORMULÁRIO DE ENTRADA -->
+    <section id="input-section">
+      <div class="input-group">
+        <label for="url-input">URL (cole o link de um artigo)</label>
+        <input type="url" id="url-input" placeholder="https://exemplo.com/artigo">
+      </div>
+
+      <div class="divider"><span>ou</span></div>
+
+      <div class="input-group">
+        <label for="text-input">Texto livre</label>
+        <textarea id="text-input" rows="6" placeholder="Cole ou digite o conteúdo aqui..."></textarea>
+      </div>
+
+      <button id="generate-btn" class="btn btn-primary">Gerar Nota</button>
+      <p id="error-msg" class="error hidden"></p>
+    </section>
+
+    <!-- LOADING -->
+    <section id="loading-section" class="hidden">
+      <div class="spinner"></div>
+      <p>Gerando nota com IA...</p>
+    </section>
+
+    <!-- PREVIEW -->
+    <section id="preview-section" class="hidden">
+      <h2>Preview da Nota</h2>
+
+      <div class="note-meta">
+        <h3 id="preview-titulo"></h3>
+        <p id="preview-resumo" class="resumo"></p>
+        <div id="preview-tags" class="tags"></div>
+      </div>
+
+      <div class="flashcards">
+        <h4>Flashcards</h4>
+        <ul id="preview-flashcards"></ul>
+      </div>
+
+      <div id="connections-section" class="connections hidden">
+        <h4>Conexões com notas existentes</h4>
+        <div id="preview-connections" class="tags"></div>
+      </div>
+
+      <div class="markdown-preview">
+        <h4>Conteúdo da Nota</h4>
+        <pre id="preview-markdown"></pre>
+      </div>
+
+      <div class="actions">
+        <button id="save-btn" class="btn btn-primary">Salvar no Obsidian</button>
+        <button id="export-anki-btn" class="btn btn-anki">Exportar para Anki</button>
+        <button id="discard-btn" class="btn btn-secondary">Descartar</button>
+      </div>
+    </section>
+
+    <!-- SUCESSO -->
+    <section id="success-section" class="hidden">
+      <div class="success-box">
+        <h2>Nota salva!</h2>
+        <p>Arquivo: <code id="saved-path"></code></p>
+        <button id="export-anki-success-btn" class="btn btn-anki">Exportar para Anki</button>
+        <button id="new-note-btn" class="btn btn-primary">Criar outra nota</button>
+      </div>
+    </section>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -17,7 +17,36 @@ Groq API (llama-3.3-70b-versatile)
 Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 ```
 
-## Roadmap — Multi-provider (AI Wrapper)
+## Roadmap
+
+### Fases concluídas
+
+| Fase | Descrição |
+|------|-----------|
+| 0 | Backend FastAPI + Groq (Llama 3.3 70B) + testes TDD |
+| 1 | Validação end-to-end (bug fixes, server funcional) |
+| 2 | Frontend web com pré-visualização (HTML/CSS/JS vanilla) |
+| 3 | Sugestão de links — conexões com notas existentes no vault |
+
+### Próximas fases
+
+| Fase | Descrição | Status |
+|------|-----------|--------|
+| 4 | **Exportação para Anki** — gerar arquivo compatível com importação do Anki (CSV/TSV ou `.xlsx`) a partir dos flashcards gerados | Planejado |
+| 5 | Bot Telegram | Planejado |
+| 6 | AI Wrapper multi-provider | Planejado |
+| 7 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
+
+### Fase 4 — Exportação para Anki (detalhes)
+
+Os flashcards já são gerados automaticamente pela IA. Esta fase adicionará:
+- **Endpoint `POST /notes/export-anki`** — recebe os flashcards de uma nota e retorna um arquivo para download
+- **Formato de saída:** CSV/TSV com colunas `Front;Back` (separador configurável), compatível com o importador nativo do Anki. Opcionalmente `.xlsx` para quem preferir abrir no Excel antes de importar
+- **Botão "Exportar para Anki"** no frontend, disponível na tela de preview após gerar a nota
+- **Configuração de deck e tags** — permitir ao usuário definir o nome do deck e tags Anki no momento da exportação
+- Testes TDD cobrindo geração do arquivo, encoding UTF-8, e formato compatível
+
+### AI Wrapper multi-provider (futuro)
 
 O projeto evoluirá para uma arquitetura de **AI wrapper** que permitirá ao usuário:
 - Selecionar o provedor de IA preferido (Groq, Google Gemini, OpenAI, Anthropic, etc.)
@@ -34,14 +63,19 @@ second-brain-notes/
 │   ├── main.py              # FastAPI app — endpoints HTTP
 │   ├── note_generator.py    # Integração com IA + fetch de URLs
 │   ├── obsidian_writer.py   # Geração de arquivo .md e escrita no vault
+│   ├── vault_reader.py      # Leitura de notas existentes para sugestão de links
 │   ├── config.py            # Configurações via variáveis de ambiente
 │   ├── requirements.txt     # Dependências Python
-│   └── tests/               # Suite de testes (TDD)
+│   └── tests/               # Suite de testes (TDD) — 62 testes
 │       ├── test_config.py
 │       ├── test_obsidian_writer.py
 │       ├── test_note_generator.py
+│       ├── test_vault_reader.py
 │       └── test_main.py
-├── frontend/                # Interface web (futuro)
+├── frontend/
+│   ├── index.html           # Interface web — dark theme
+│   ├── style.css            # Estilos
+│   └── app.js               # Lógica de preview e salvamento
 ├── templates/
 │   └── note_template.md     # Exemplo de nota gerada
 ├── .env.example             # Variáveis de ambiente necessárias
