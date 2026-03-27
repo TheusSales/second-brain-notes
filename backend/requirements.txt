@@ -1,0 +1,15 @@
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+groq==0.13.1
+httpx==0.28.1
+python-dotenv==1.0.1
+pydantic-settings==2.7.0
+pydantic==2.10.4
+beautifulsoup4==4.12.3
+html2text==2024.2.26
+python-slugify==8.0.4
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.25.2
+pytest-mock==3.14.0

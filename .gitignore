@@ -1,0 +1,22 @@
+# Ambiente virtual
+.venv/
+
+# Variáveis de ambiente (NUNCA subir)
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.coverage
+
+# Claude Code
+.claude/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
