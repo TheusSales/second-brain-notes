@@ -8,6 +8,7 @@ pydantic==2.10.4
 beautifulsoup4==4.12.3
 html2text==2024.2.26
 python-slugify==8.0.4
+python-telegram-bot==21.10
 
 # Testing
 pytest==8.3.4

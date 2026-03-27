@@ -30,6 +30,7 @@ class Settings(BaseSettings):
         groq_max_tokens: Número máximo de tokens na resposta.
         httpx_timeout: Timeout em segundos para requisições HTTP externas.
         httpx_max_content_chars: Limite de caracteres do conteúdo de URLs.
+        telegram_bot_token: Token do bot do Telegram (opcional).
     """
 
     groq_api_key: str
@@ -38,6 +39,7 @@ class Settings(BaseSettings):
     groq_max_tokens: int = 4096
     httpx_timeout: float = 30.0
     httpx_max_content_chars: int = 8000
+    telegram_bot_token: str = ""
 
     model_config = {
         "env_file": ".env",

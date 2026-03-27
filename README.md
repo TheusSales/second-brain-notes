@@ -27,24 +27,15 @@ Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 | 1 | Validação end-to-end (bug fixes, server funcional) |
 | 2 | Frontend web com pré-visualização (HTML/CSS/JS vanilla) |
 | 3 | Sugestão de links — conexões com notas existentes no vault |
+| 4 | Exportação para Anki (TSV/CSV dos flashcards) |
+| 5 | Bot Telegram — gerar notas e exportar Anki via chat |
 
 ### Próximas fases
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
-| 4 | **Exportação para Anki** — gerar arquivo compatível com importação do Anki (CSV/TSV ou `.xlsx`) a partir dos flashcards gerados | Planejado |
-| 5 | Bot Telegram | Planejado |
 | 6 | AI Wrapper multi-provider | Planejado |
 | 7 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
-
-### Fase 4 — Exportação para Anki (detalhes)
-
-Os flashcards já são gerados automaticamente pela IA. Esta fase adicionará:
-- **Endpoint `POST /notes/export-anki`** — recebe os flashcards de uma nota e retorna um arquivo para download
-- **Formato de saída:** CSV/TSV com colunas `Front;Back` (separador configurável), compatível com o importador nativo do Anki. Opcionalmente `.xlsx` para quem preferir abrir no Excel antes de importar
-- **Botão "Exportar para Anki"** no frontend, disponível na tela de preview após gerar a nota
-- **Configuração de deck e tags** — permitir ao usuário definir o nome do deck e tags Anki no momento da exportação
-- Testes TDD cobrindo geração do arquivo, encoding UTF-8, e formato compatível
 
 ### AI Wrapper multi-provider (futuro)
 
@@ -55,6 +46,31 @@ O projeto evoluirá para uma arquitetura de **AI wrapper** que permitirá ao usu
 
 Quando implementado, a variável `AI_PROVIDER` no `.env` controlará qual provedor é usado, e cada provedor terá sua própria chave configurável. Consulte `.env.example` para ver as variáveis planejadas.
 
+## Bot Telegram
+
+O bot permite gerar notas e exportar flashcards diretamente pelo Telegram.
+
+### Configuração
+
+1. Crie um bot no Telegram via [@BotFather](https://t.me/BotFather)
+2. Adicione o token ao `.env`:
+   ```env
+   TELEGRAM_BOT_TOKEN=seu-token-aqui
+   ```
+3. Inicie o bot:
+   ```bash
+   python -m backend.telegram_bot
+   ```
+
+### Comandos
+
+| Comando | Descrição |
+|---------|-----------|
+| `/start` | Mensagem de boas-vindas com instruções |
+| mensagem de texto | Gera nota a partir do conteúdo e salva no Obsidian |
+| URL | Detecta automaticamente, busca o conteúdo e gera nota |
+| `/anki` | Exporta flashcards da última nota como arquivo para o Anki |
+
 ## Estrutura do projeto
 
 ```
@@ -64,13 +80,17 @@ second-brain-notes/
 │   ├── note_generator.py    # Integração com IA + fetch de URLs
 │   ├── obsidian_writer.py   # Geração de arquivo .md e escrita no vault
 │   ├── vault_reader.py      # Leitura de notas existentes para sugestão de links
+│   ├── anki_exporter.py     # Exportação de flashcards para Anki (TSV/CSV)
+│   ├── telegram_bot.py      # Bot do Telegram
 │   ├── config.py            # Configurações via variáveis de ambiente
 │   ├── requirements.txt     # Dependências Python
-│   └── tests/               # Suite de testes (TDD) — 62 testes
+│   └── tests/               # Suite de testes (TDD) — 96 testes
 │       ├── test_config.py
 │       ├── test_obsidian_writer.py
 │       ├── test_note_generator.py
 │       ├── test_vault_reader.py
+│       ├── test_anki_exporter.py
+│       ├── test_telegram_bot.py
 │       └── test_main.py
 ├── frontend/
 │   ├── index.html           # Interface web — dark theme
