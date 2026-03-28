@@ -38,6 +38,7 @@ from pydantic import BaseModel
 
 from slugify import slugify
 
+from backend.ai_providers import PROVIDERS
 from backend.anki_exporter import AnkiExportRequest, export_csv
 from backend.config import settings
 from backend.note_generator import Flashcard, GeneratedNote, NoteRequest, generate_note
@@ -292,6 +293,19 @@ def export_anki(request: AnkiExportRequest) -> PlainTextResponse:
             "Content-Disposition": f'attachment; filename="{filename}.txt"',
         },
     )
+
+
+@app.get(
+    "/providers",
+    summary="Listar provedores de IA disponíveis",
+    description="Retorna os provedores suportados e qual está ativo.",
+)
+def list_providers() -> dict:
+    """Retorna os provedores de IA disponíveis e o ativo."""
+    return {
+        "active": settings.ai_provider,
+        "available": list(PROVIDERS.keys()),
+    }
 
 
 @app.get(

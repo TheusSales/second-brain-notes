@@ -15,6 +15,7 @@ const loadingSection = document.getElementById("loading-section");
 const previewSection = document.getElementById("preview-section");
 const successSection = document.getElementById("success-section");
 
+const providerSelect = document.getElementById("provider-select");
 const urlInput = document.getElementById("url-input");
 const textInput = document.getElementById("text-input");
 const generateBtn = document.getElementById("generate-btn");
@@ -37,6 +38,32 @@ const newNoteBtn = document.getElementById("new-note-btn");
 
 // Estado da nota gerada (para enviar ao /notes/save)
 let generatedNoteData = null;
+
+// ---------------------------------------------------------------------------
+// Carregar provedores disponíveis
+// ---------------------------------------------------------------------------
+
+const PROVIDER_LABELS = {
+  groq: "Groq (Llama 3.3 70B)",
+  openai: "OpenAI (GPT-4o mini)",
+  anthropic: "Anthropic (Claude Sonnet)",
+  gemini: "Google Gemini (2.0 Flash)",
+};
+
+(async function loadProviders() {
+  try {
+    const res = await fetch(`${API_BASE}/providers`);
+    const data = await res.json();
+    providerSelect.innerHTML = data.available
+      .map(
+        (p) =>
+          `<option value="${p}" ${p === data.active ? "selected" : ""}>${PROVIDER_LABELS[p] || p}</option>`
+      )
+      .join("");
+  } catch {
+    providerSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+  }
+})();
 
 // ---------------------------------------------------------------------------
 // Navegação entre seções
@@ -87,6 +114,7 @@ generateBtn.addEventListener("click", async () => {
   const body = {};
   if (url) body.url = url;
   if (text) body.text = text;
+  body.provider = providerSelect.value;
 
   showSection(loadingSection);
 

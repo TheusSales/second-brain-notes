@@ -68,6 +68,7 @@ header h1 {
   letter-spacing: 0.5px;
 }
 
+select,
 input[type="url"],
 textarea {
   width: 100%;
@@ -81,6 +82,7 @@ textarea {
   transition: border-color 0.2s;
 }
 
+select:focus,
 input[type="url"]:focus,
 textarea:focus {
   outline: none;

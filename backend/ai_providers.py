@@ -129,16 +129,20 @@ PROVIDERS: dict[str, type[AIProvider]] = {
 }
 
 
-def get_provider() -> AIProvider:
-    """Retorna a instância do provedor configurado em AI_PROVIDER.
+def get_provider(override: str | None = None) -> AIProvider:
+    """Retorna a instância do provedor de IA.
+
+    Args:
+        override: Nome do provedor para override temporário (opcional).
+            Se None, usa o valor de AI_PROVIDER do settings.
 
     Returns:
         Instância do provedor de IA selecionado.
 
     Raises:
-        ValueError: Se o provedor configurado não for suportado.
+        ValueError: Se o provedor não for suportado.
     """
-    name = settings.ai_provider
+    name = override or settings.ai_provider
     cls = PROVIDERS.get(name)
     if cls is None:
         supported = ", ".join(PROVIDERS.keys())

@@ -39,6 +39,7 @@ class NoteRequest(BaseModel):
     Attributes:
         text: Texto livre a ser transformado em nota.
         url: URL de uma página web cujo conteúdo será extraído.
+        provider: Provedor de IA a usar (override temporário, opcional).
 
     Raises:
         ValueError: Se nem text nem url forem fornecidos.
@@ -46,6 +47,7 @@ class NoteRequest(BaseModel):
 
     text: Optional[str] = None
     url: Optional[str] = None
+    provider: Optional[str] = None
 
     @model_validator(mode="after")
     def at_least_one_field(self) -> "NoteRequest":
@@ -234,6 +236,8 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
     """
     from backend.ai_providers import get_provider
 
+    provider_override = request.provider if hasattr(request, "provider") else None
+
     if request.url:
         content = await fetch_url_content(request.url)
         fonte = request.url
@@ -257,6 +261,6 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
         vault_context=vault_context,
     )
 
-    provider = get_provider()
+    provider = get_provider(provider_override)
     raw_response = await provider.generate(SYSTEM_PROMPT, user_prompt)
     return parse_llm_response(raw_response, fonte=fonte, date=today)
