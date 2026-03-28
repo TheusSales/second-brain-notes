@@ -29,7 +29,6 @@ Example:
 import json
 from pathlib import Path
 
-import groq as groq_sdk
 import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -168,10 +167,15 @@ async def _generate_note_or_raise(request: NoteRequest) -> GeneratedNote:
             status_code=502,
             detail="O LLM retornou JSON malformado. Tente novamente.",
         )
-    except groq_sdk.APIError as exc:
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        )
+    except Exception as exc:
         raise HTTPException(
             status_code=502,
-            detail=f"Erro na API do Groq: {str(exc)}",
+            detail=f"Erro na API do provedor de IA: {str(exc)}",
         )
 
 

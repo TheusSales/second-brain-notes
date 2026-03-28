@@ -1,15 +1,10 @@
-"""Módulo de geração de notas usando a Groq API.
+"""Módulo de geração de notas usando provedores de IA.
 
 Responsável por:
 - Buscar conteúdo de URLs externas
 - Montar o prompt para o LLM
-- Chamar a API do Groq (Llama 3.3 70B)
+- Chamar o provedor de IA configurado (Groq, OpenAI, Anthropic, Gemini)
 - Parsear a resposta JSON em objetos Pydantic
-
-Roadmap — Multi-provider:
-    Este módulo será refatorado para suportar múltiplos provedores de IA via
-    uma camada de abstração (AI wrapper). O usuário poderá selecionar o provedor
-    (Groq, Gemini, OpenAI, Anthropic, etc.) e configurar sua própria API key.
 
 Example:
     >>> import asyncio
@@ -20,13 +15,11 @@ Example:
     Introdução ao FastAPI
 """
 
-import asyncio
 import json
 import re
 import datetime
 from typing import Optional
 
-import groq as groq_sdk
 import httpx
 from bs4 import BeautifulSoup
 import html2text
@@ -223,11 +216,10 @@ def parse_llm_response(raw: str, fonte: str, date: str) -> GeneratedNote:
 
 
 async def generate_note(request: NoteRequest) -> GeneratedNote:
-    """Gera uma nota estruturada a partir de texto ou URL usando o Groq.
+    """Gera uma nota estruturada a partir de texto ou URL usando o provedor de IA configurado.
 
     Se `request.url` for fornecido, busca o conteúdo da página antes de
-    chamar o LLM. A chamada à API do Groq (síncrona) é executada em uma
-    thread pool para não bloquear o event loop.
+    chamar o LLM. O provedor é selecionado via a variável AI_PROVIDER.
 
     Args:
         request: Objeto NoteRequest com text ou url preenchido.
@@ -239,8 +231,9 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
         httpx.HTTPStatusError: Se a URL fornecida retornar erro HTTP.
         httpx.RequestError: Em caso de falha de rede ao buscar URL.
         json.JSONDecodeError: Se o LLM retornar JSON malformado.
-        groq.APIError: Em caso de falha na chamada à API do Groq.
     """
+    from backend.ai_providers import get_provider
+
     if request.url:
         content = await fetch_url_content(request.url)
         fonte = request.url
@@ -252,32 +245,18 @@ async def generate_note(request: NoteRequest) -> GeneratedNote:
 
     today = datetime.date.today().isoformat()
 
-    # Busca contexto das notas existentes no vault para sugestão de conexões
     vault_context = format_vault_context()
     if vault_context:
         vault_context = f"\n{vault_context}\n"
     else:
         vault_context = ""
 
-    def _call_groq() -> str:
-        """Executa a chamada síncrona ao Groq em thread pool."""
-        client = groq_sdk.Groq(api_key=settings.groq_api_key)
-        response = client.chat.completions.create(
-            model=settings.groq_model,
-            max_tokens=settings.groq_max_tokens,
-            messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {
-                    "role": "user",
-                    "content": USER_PROMPT_TEMPLATE.format(
-                        source_type=source_type,
-                        content=content,
-                        vault_context=vault_context,
-                    ),
-                },
-            ],
-        )
-        return response.choices[0].message.content
+    user_prompt = USER_PROMPT_TEMPLATE.format(
+        source_type=source_type,
+        content=content,
+        vault_context=vault_context,
+    )
 
-    raw_response = await asyncio.to_thread(_call_groq)
+    provider = get_provider()
+    raw_response = await provider.generate(SYSTEM_PROMPT, user_prompt)
     return parse_llm_response(raw_response, fonte=fonte, date=today)

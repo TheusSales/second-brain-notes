@@ -20,13 +20,19 @@ class TestSettings:
         settings = Settings()
         assert settings.groq_api_key == "gsk-test-key"
 
-    def test_raises_if_api_key_missing(self, monkeypatch):
-        """Settings deve lançar ValidationError se GROQ_API_KEY não estiver definida."""
-        monkeypatch.delenv("GROQ_API_KEY", raising=False)
+    def test_default_ai_provider_is_groq(self, monkeypatch):
+        """ai_provider deve ter valor padrão 'groq'."""
+        monkeypatch.setenv("GROQ_API_KEY", "gsk-test-key")
         from backend.config import Settings
-        with pytest.raises(ValidationError):
-            # _env_file="" impede que pydantic-settings leia o .env real do projeto
-            Settings(_env_file="")
+        settings = Settings()
+        assert settings.ai_provider == "groq"
+
+    def test_custom_ai_provider_from_env(self, monkeypatch):
+        """ai_provider deve ser sobrescrito via variável de ambiente."""
+        monkeypatch.setenv("AI_PROVIDER", "openai")
+        from backend.config import Settings
+        settings = Settings()
+        assert settings.ai_provider == "openai"
 
     def test_default_obsidian_vault_path(self, monkeypatch):
         """obsidian_vault_path deve ter valor padrão correto."""

@@ -24,19 +24,33 @@ class Settings(BaseSettings):
     """Configurações da aplicação carregadas de variáveis de ambiente.
 
     Attributes:
-        groq_api_key: Chave de API do Groq (provedor atual).
-        obsidian_vault_path: Caminho para a pasta Inbox do vault do Obsidian.
+        ai_provider: Provedor de IA ativo (groq, openai, anthropic, gemini).
+        groq_api_key: Chave de API do Groq.
         groq_model: ID do modelo Groq a ser utilizado.
+        openai_api_key: Chave de API da OpenAI.
+        openai_model: ID do modelo OpenAI a ser utilizado.
+        anthropic_api_key: Chave de API da Anthropic.
+        anthropic_model: ID do modelo Anthropic a ser utilizado.
+        gemini_api_key: Chave de API do Google Gemini.
+        gemini_model: ID do modelo Gemini a ser utilizado.
         groq_max_tokens: Número máximo de tokens na resposta.
+        obsidian_vault_path: Caminho para a pasta Inbox do vault do Obsidian.
         httpx_timeout: Timeout em segundos para requisições HTTP externas.
         httpx_max_content_chars: Limite de caracteres do conteúdo de URLs.
         telegram_bot_token: Token do bot do Telegram (opcional).
     """
 
-    groq_api_key: str
-    obsidian_vault_path: Path = Path.home() / "Documents/Obsidian/Vault/Inbox"
+    ai_provider: str = "groq"
+    groq_api_key: str = ""
     groq_model: str = "llama-3.3-70b-versatile"
+    openai_api_key: str = ""
+    openai_model: str = "gpt-4o-mini"
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-sonnet-4-6"
+    gemini_api_key: str = ""
+    gemini_model: str = "gemini-2.0-flash"
     groq_max_tokens: int = 4096
+    obsidian_vault_path: Path = Path.home() / "Documents/Obsidian/Vault/Inbox"
     httpx_timeout: float = 30.0
     httpx_max_content_chars: int = 8000
     telegram_bot_token: str = ""

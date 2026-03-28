@@ -2,7 +2,7 @@
 
 Ferramenta para capturar conhecimento e salvar notas padronizadas no Obsidian, usando IA para gerar resumos, flashcards e tags automaticamente a partir de texto livre ou URLs.
 
-**Provedor atual:** [Groq](https://console.groq.com) (gratuito) com modelo `llama-3.3-70b-versatile`.
+**Provedores de IA suportados:** Groq (padrão, gratuito), OpenAI, Anthropic, Google Gemini.
 
 ## Arquitetura
 
@@ -11,10 +11,10 @@ Entrada (texto ou URL)
         ↓
 Backend FastAPI (Python)
         ↓
-Groq API (llama-3.3-70b-versatile)
+AI Provider (Groq | OpenAI | Anthropic | Gemini)
   → Gera: título, resumo, flashcards, tags, corpo
         ↓
-Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
+Arquivo .md salvo no vault do Obsidian
 ```
 
 ## Roadmap
@@ -30,12 +30,12 @@ Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 | 4 | Exportação para Anki (TSV/CSV dos flashcards) |
 | 5 | Bot Telegram — gerar notas e exportar Anki via chat |
 | 6 | Deploy — VPS (Hostinger) + Docker + Syncthing |
+| 7 | AI Wrapper multi-provider (Groq, OpenAI, Anthropic, Gemini) |
 
 ### Próximas fases
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
-| 7 | AI Wrapper multi-provider | Planejado |
 | 8 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
 
 ### Fase 6 — Deploy em VPS com Docker e Syncthing (detalhes)
@@ -74,15 +74,6 @@ docker-compose.yml
 6. Deploy com `docker compose up -d`
 7. Configurar domínio/HTTPS (opcional, Caddy ou nginx como reverse proxy)
 
-### AI Wrapper multi-provider (futuro)
-
-O projeto evoluirá para uma arquitetura de **AI wrapper** que permitirá ao usuário:
-- Selecionar o provedor de IA preferido (Groq, Google Gemini, OpenAI, Anthropic, etc.)
-- Configurar sua própria API key por provedor
-- Trocar de provedor sem alterar o restante do sistema
-
-Quando implementado, a variável `AI_PROVIDER` no `.env` controlará qual provedor é usado, e cada provedor terá sua própria chave configurável. Consulte `.env.example` para ver as variáveis planejadas.
-
 ## Bot Telegram
 
 O bot permite gerar notas e exportar flashcards diretamente pelo Telegram.
@@ -114,7 +105,8 @@ O bot permite gerar notas e exportar flashcards diretamente pelo Telegram.
 second-brain-notes/
 ├── backend/
 │   ├── main.py              # FastAPI app — endpoints HTTP
-│   ├── note_generator.py    # Integração com IA + fetch de URLs
+│   ├── ai_providers.py      # Camada de abstração multi-provider (Groq, OpenAI, Anthropic, Gemini)
+│   ├── note_generator.py    # Geração de notas via AI provider + fetch de URLs
 │   ├── obsidian_writer.py   # Geração de arquivo .md e escrita no vault
 │   ├── vault_reader.py      # Leitura de notas existentes para sugestão de links
 │   ├── anki_exporter.py     # Exportação de flashcards para Anki (TSV/CSV)

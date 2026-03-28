@@ -151,7 +151,7 @@ class TestGenerateNote:
     @pytest.mark.asyncio
     async def test_generate_note_from_text(self, monkeypatch):
         """generate_note deve retornar GeneratedNote quando texto é fornecido."""
-        from unittest.mock import MagicMock, patch
+        from unittest.mock import patch, AsyncMock
         from backend.note_generator import NoteRequest, generate_note
 
         fake_response_json = json.dumps({
@@ -162,11 +162,10 @@ class TestGenerateNote:
             "body": "## FastAPI\nConteúdo detalhado.",
         })
 
-        mock_response = MagicMock()
-        mock_response.choices[0].message.content = fake_response_json
+        mock_provider = AsyncMock()
+        mock_provider.generate.return_value = fake_response_json
 
-        with patch("backend.note_generator.groq_sdk.Groq") as MockGroq:
-            MockGroq.return_value.chat.completions.create.return_value = mock_response
+        with patch("backend.ai_providers.get_provider", return_value=mock_provider):
             request = NoteRequest(text="FastAPI é um framework Python.")
             note = await generate_note(request)
 
@@ -177,7 +176,7 @@ class TestGenerateNote:
     @pytest.mark.asyncio
     async def test_generate_note_from_url(self, monkeypatch):
         """generate_note deve fazer fetch da URL e retornar GeneratedNote."""
-        from unittest.mock import MagicMock, patch, AsyncMock
+        from unittest.mock import patch, AsyncMock
         from backend.note_generator import NoteRequest, generate_note
         import backend.note_generator as ng
 
@@ -189,12 +188,11 @@ class TestGenerateNote:
             "body": "## Artigo\nConteúdo.",
         })
 
-        mock_response = MagicMock()
-        mock_response.choices[0].message.content = fake_response_json
+        mock_provider = AsyncMock()
+        mock_provider.generate.return_value = fake_response_json
 
-        with patch("backend.note_generator.groq_sdk.Groq") as MockGroq, \
+        with patch("backend.ai_providers.get_provider", return_value=mock_provider), \
              patch.object(ng, "fetch_url_content", new=AsyncMock(return_value="Conteúdo extraído.")):
-            MockGroq.return_value.chat.completions.create.return_value = mock_response
             request = NoteRequest(url="https://example.com/artigo")
             note = await generate_note(request)
 
