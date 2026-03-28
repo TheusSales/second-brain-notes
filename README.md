@@ -29,12 +29,12 @@ Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 | 3 | Sugestão de links — conexões com notas existentes no vault |
 | 4 | Exportação para Anki (TSV/CSV dos flashcards) |
 | 5 | Bot Telegram — gerar notas e exportar Anki via chat |
+| 6 | Deploy — VPS (Hostinger) + Docker + Syncthing |
 
 ### Próximas fases
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
-| 6 | **Deploy — VPS (Hostinger) + Docker + Syncthing** | Em progresso |
 | 7 | AI Wrapper multi-provider | Planejado |
 | 8 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
 
