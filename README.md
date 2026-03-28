@@ -34,8 +34,45 @@ Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
-| 6 | AI Wrapper multi-provider | Planejado |
-| 7 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
+| 6 | **Deploy — VPS + Docker + Syncthing** | Planejado |
+| 7 | AI Wrapper multi-provider | Planejado |
+| 8 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
+
+### Fase 6 — Deploy em VPS com Docker e Syncthing (detalhes)
+
+Objetivo: rodar o app em uma VPS (Oracle Cloud free tier ou Hetzner ~€4/mês) e sincronizar o vault do Obsidian com o PC local via Syncthing.
+
+**Infraestrutura:**
+- VPS Linux com Docker instalado
+- Syncthing rodando na VPS e no PC local, sincronizando a pasta do vault do Obsidian
+- O app escreve notas no filesystem da VPS → Syncthing replica pro PC → Obsidian detecta os arquivos
+
+**Mudanças no código:**
+- `Dockerfile` — imagem com FastAPI + uvicorn (multi-stage build, imagem slim)
+- `docker-compose.yml` — orquestra o app (web + bot Telegram) e opcionalmente o Syncthing
+- Bot Telegram em modo **webhook** (mais eficiente que polling em produção)
+- Variáveis de ambiente via Docker secrets ou `.env` no servidor
+- Health check no Docker para restart automático
+
+**Estrutura de deploy:**
+```
+docker-compose.yml
+├── app (FastAPI + Bot Telegram)
+│   ├── Porta 8001 exposta
+│   ├── Volume: /vault → pasta sincronizada pelo Syncthing
+│   └── Env: GROQ_API_KEY, TELEGRAM_BOT_TOKEN, OBSIDIAN_VAULT_PATH=/vault
+└── syncthing (opcional, pode rodar fora do Docker)
+    └── Sincroniza /vault ↔ ~/Sync/Obsidian no PC local
+```
+
+**Passo a passo previsto:**
+1. Criar `Dockerfile` e `docker-compose.yml`
+2. Testar localmente com `docker compose up`
+3. Provisionar VPS (Oracle Cloud free tier: ARM 4 vCPU, 24GB RAM)
+4. Instalar Docker e Syncthing na VPS
+5. Configurar Syncthing entre VPS e PC local
+6. Deploy com `docker compose up -d`
+7. Configurar domínio/HTTPS (opcional, Caddy ou nginx como reverse proxy)
 
 ### AI Wrapper multi-provider (futuro)
 
