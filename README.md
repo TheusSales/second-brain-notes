@@ -34,13 +34,13 @@ Arquivo .md salvo em ~/Documents/Obsidian/Vault/Inbox/
 
 | Fase | Descrição | Status |
 |------|-----------|--------|
-| 6 | **Deploy — VPS + Docker + Syncthing** | Planejado |
+| 6 | **Deploy — VPS (Hostinger) + Docker + Syncthing** | Em progresso |
 | 7 | AI Wrapper multi-provider | Planejado |
 | 8 | Melhorias (auth, rate limit, logs, suporte a PDF) | Planejado |
 
 ### Fase 6 — Deploy em VPS com Docker e Syncthing (detalhes)
 
-Objetivo: rodar o app em uma VPS (Oracle Cloud free tier ou Hetzner ~€4/mês) e sincronizar o vault do Obsidian com o PC local via Syncthing.
+Objetivo: rodar o app em uma VPS (Hostinger) e sincronizar o vault do Obsidian com o PC local via Syncthing.
 
 **Infraestrutura:**
 - VPS Linux com Docker instalado
@@ -138,6 +138,30 @@ second-brain-notes/
 ├── .env.example             # Variáveis de ambiente necessárias
 └── README.md
 ```
+
+## Deploy com Docker
+
+```bash
+# 1. Criar pasta do vault na VPS
+mkdir -p /home/user/vault
+
+# 2. Configurar .env na raiz do projeto
+cp .env.example .env
+# Editar .env com GROQ_API_KEY, TELEGRAM_BOT_TOKEN, VAULT_HOST_PATH
+
+# 3. Subir os containers
+docker compose up -d
+
+# 4. Verificar se está rodando
+docker compose ps
+curl http://localhost:8001/health
+```
+
+O `docker-compose.yml` sobe dois serviços:
+- **app** — FastAPI na porta 8001
+- **bot** — Bot do Telegram (polling)
+
+Ambos compartilham o volume `/vault`, que é mapeado para `VAULT_HOST_PATH` no host (pasta sincronizada pelo Syncthing).
 
 ## Requisitos
 

@@ -18,5 +18,8 @@ __pycache__/
 .vscode/
 .idea/
 
+# Docker / vault local
+vault/
+
 # OS
 .DS_Store

@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: second-brain-app
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    volumes:
+      - vault_data:/vault
+    env_file:
+      - .env
+    environment:
+      - OBSIDIAN_VAULT_PATH=/vault
+
+  bot:
+    build: .
+    container_name: second-brain-bot
+    restart: unless-stopped
+    volumes:
+      - vault_data:/vault
+    env_file:
+      - .env
+    environment:
+      - OBSIDIAN_VAULT_PATH=/vault
+    command: ["python", "-m", "backend.telegram_bot"]
+
+volumes:
+  vault_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ${VAULT_HOST_PATH:-./vault}
